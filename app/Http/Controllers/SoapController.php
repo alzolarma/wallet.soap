@@ -109,7 +109,7 @@ class SoapController extends Controller
     function createCustomer(){
         $url = "http://ws.cdyne.com/ip2geo/ip2geo.asmx?wsdl";
         //$client = new \nusoap_client($url, [ "trace" => 1 ] );
-        $client = new \nusoap_client('http://127.0.0.1:8000/index.php/customer?wsdl', true);
+        $client = new \nusoap_client('http://127.0.0.1:8000/index.php?wsdl', true);
         $result = $client->call('ResolveIP', [ "ipAddress" => '0000', "licenseKey" => "0" ]);
         return $result;
     }

@@ -26,7 +26,7 @@ $server = new \nusoap_server();
 $namespace = "SoapWalletService";
 $url = "http://127.0.0.1:8000";
 
-$server->configureWSDL('http://127.0.0.1:8000/api?wsdl', url('api'));
+$server->configureWSDL('http://127.0.0.1:8000/apirest?wsdl', url('api'));
 //$server->configureWSDL('SoapWalletService', $namespace, $url);
 $server->wsdl->schemaTargetNamespace =  $namespace;
 
@@ -35,16 +35,6 @@ $server->register('test',
     array('output' => 'xsd:string')
 );
 
-// function test($input){
-//     return "respuesta";
-// }
-
-Route::any('test', function() {
-    $client = new \nusoap_client('http://127.0.0.1:8000/index.php/customer?wsdl', true);
-
-    $result = $client->call("test", 'HelloWorld');
-    return $result;
-});
 
 Route::any('api', function() {
     $server = new \nusoap_server();
@@ -56,26 +46,26 @@ Route::any('api', function() {
         array('output' => 'xsd:string')
     );
 
-        $server->register('customer',
-            array(
-                'name' => 'xsd:string',
-                'document' => 'xsd:string',
-                'email' => 'xsd:string',
-                'phone' => 'xsd:string'
-            ),
-            array(
-                 'code' => 'xsd:string',
-                 'message' => 'xsd:string'
-            ),
-            false,
-            false,
-            false,
-            false,
-            'Crear nuevo cliente'
-        );
+    $server->register('customer',
+        array(
+            'name' => 'xsd:string',
+            'document' => 'xsd:string',
+            'email' => 'xsd:string',
+            'phone' => 'xsd:string'
+        ),
+        array(
+                'code' => 'xsd:string',
+                'message' => 'xsd:string'
+        ),
+        false,
+        false,
+        false,
+        false,
+        'Crear nuevo cliente'
+    );
 
     function test($input){
-        return "test";
+        return $input;
     }
 
     $rawPostData = file_get_contents("php://input");
