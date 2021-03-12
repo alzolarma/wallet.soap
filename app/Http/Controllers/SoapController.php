@@ -103,7 +103,7 @@ class SoapController extends Controller
     }
 
     function test($input){
-        return $input;
+        return "Resultado final ".$input;
     }
 
     function createCustomer(){
@@ -120,11 +120,9 @@ class SoapController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store($request)
     {
-        $client = new \nusoap_client('http://127.0.0.1:8000/customer?wsdl', true);
-        $result = $client->call("test", "HelloWorld");
-        return $result;
+     return array('message' => 'Mensaje resultado', 'code' =>  200);
     }
 
     /**
