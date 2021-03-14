@@ -44,26 +44,48 @@ Route::any('api', function() {
             '',
             array(
                 'name' => array('name' => 'name','type' => 'xsd:string'),
-                'phone' => array('name' => 'phone','type' => 'xsd:string')
+                'phone' => array('name' => 'phone','type' => 'xsd:string'),
+                'email' => array('name' => 'name','type' => 'xsd:string'),
+                'document' => array('name' => 'name','type' => 'xsd:string')
             )
     );
 
+    // $server->register(
+    //     'getBalance',
+    //     array('tns:requestCustomer'),        // input parameters
+    //     array('tns:response'),      // output parameters
+    //     'urn:api',                      // namespace
+    //     'urn:api#hello',                // soapaction
+    //     'rpc',                                // style
+    //     'encoded',                            // use
+    //     'Says hello to the caller'            // documentation
+    // );
+
     $server->register(
         'getBalance',
-        array('tns:requestCustomer'),        // input parameters
-        array('type'=>'xsd:string'),      // output parameters
+        array('data','type' => 'xsd:string'),        // input parameters
+        array('response','type' => 'xsd:string'),      // output parameters
         'urn:api',                      // namespace
         'urn:api#hello',                // soapaction
         'rpc',                                // style
         'encoded',                            // use
-        'Retorna balance'            // documentation
+        'Says hello to the caller'            // documentation
     );
-    
-    function getBalance($request) {
-        return  $request;
+
+    function test($request) {
+        $soapController = new SoapController();
+        $result = $soapController->test($request);
+        return $result;
     }
 
+    function getBalance($request) {
+        // $soapController = new SoapController();
+        // $result = $soapController->test($request);
+        //return $request;
+        return array('message' => 'Mensaje resultado', 'code' => $request);
+    }
+
+
     $rawPostData = file_get_contents("php://input");
-    //return array('message' => 'Mensaje resultado', 'code' => $rawPostData);
     return \Response::make($server->service($rawPostData), 200, array('Content-Type' => 'text/xml; charset=ISO-8859-1'));
 });
