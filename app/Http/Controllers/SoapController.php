@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Soap;
+use App\Customer;
+use App\Wallet;
 use Illuminate\Http\Request;
 
 class SoapController extends Controller
@@ -102,13 +105,73 @@ class SoapController extends Controller
         return \Response::make($server->service($rawPostData), 200, array('Content-Type' => 'text/xml; charset=ISO-8859-1'));
     }
 
-    function test($input){
-        return "Resultado final ".$input;
+    function getBalance($request) {
+        $customer = Customer::where('phone', '=', $request['phone'])
+                    ->where('document', '=', $request['document'])
+                    ->first();
+        if($customer) {
+            return array(
+                'message' => 'Consulta exitosa',
+                'status' => true,
+                'code' => 200,
+                'data' => "{ 'balance': $customer->balance}",
+                'errors' => null
+            );
+        }
+        return array(
+            'message' => 'Usuario no encontrado',
+            'status' => false,
+            'data' => null,
+            'code' => 404,
+            'errors' => null
+        );
+    }
+
+    function customerStore($request) {
+        try {
+
+            $checkCustomer = Customer::where('phone', '=', $request['phone'])
+            ->where('document', '=', $request['document'])
+            ->first();
+
+            if ($checkCustomer) {
+                return array(
+                    'message' => 'Registro ya existe en base de datos',
+                    'status' => false,
+                    'data' => null,
+                    'code' => 202,
+                    'errors' => null
+                );
+            }
+
+            $customer = new Customer();
+            $customer->name = $request['name'];
+            $customer->phone = $request['phone'];
+            $customer->document = $request['document'];
+            $customer->email = $request['email'];
+            $customer->save();
+
+            return array(
+                'message' => 'Registro creado',
+                'code' => 200,
+                'status' => true,
+                'errors' => null,
+                'data' => null,
+            );
+
+        } catch (\Throwable $th) {
+           return array(
+            'message' => 'Ha ocurrido un error',
+            'status' => false,
+            'data' => null,
+            'code' => 500,
+            'errors' => null
+            );
+        }
     }
 
     function createCustomer(){
         $url = "http://ws.cdyne.com/ip2geo/ip2geo.asmx?wsdl";
-        //$client = new \nusoap_client($url, [ "trace" => 1 ] );
         $client = new \nusoap_client('http://127.0.0.1:8000/index.php?wsdl', true);
         $result = $client->call('ResolveIP', [ "ipAddress" => '0000', "licenseKey" => "0" ]);
         return $result;

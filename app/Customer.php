@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    //
+    protected $table = 'customers';
+
+    /**
+     * Get the balance associated with the customer.
+     */
+    public function balance()
+    {
+        return $this->hasOne(Wallet::class);
+    }
 }
