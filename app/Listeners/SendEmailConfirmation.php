@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\TransactionPending;
+use App\Events\PaymentRequestCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Transaction;
@@ -26,16 +26,13 @@ class SendEmailConfirmation
     /**
      * Handle the event.
      *
-     * @param  TransactionPending  $event
+     * @param  PaymentRequestCreated  $event
      * @return void
      */
-    public function handle(TransactionPending $event)
+    public function handle(PaymentRequestCreated $event)
     {
-        $token = bin2hex(random_bytes((6 - (6 % 2)) / 2));
-        $checkCustomer = Customer::where('id', '=',  $event->customer->id)
+        $checkCustomer = Customer::where('id', '=',  $event->paymentRequest->customer_id)
             ->first();
-        $checkCustomer->token = $token;
-        $checkCustomer->save();
-        Mail::to($checkCustomer->email)->send(new ConfirmTransaction($token));
+        Mail::to($checkCustomer->email)->send(new ConfirmTransaction($event->paymentRequest->token));
     }
 }

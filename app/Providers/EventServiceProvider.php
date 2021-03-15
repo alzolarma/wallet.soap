@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Auth\Events\Registered;
 use App\Events\TransactionCreated;
-use App\Events\TransactionPending;
+use App\Events\PaymentRequestCreated;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use App\Listeners\UpdateBalance;
 use App\Listeners\SendEmailConfirmation;
@@ -25,7 +25,7 @@ class EventServiceProvider extends ServiceProvider
         TransactionCreated::class => [
             UpdateBalance::class,
         ],
-        TransactionPending::class => [
+        PaymentRequestCreated::class => [
             SendEmailConfirmation::class,
         ],
     ];
@@ -38,9 +38,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        // Event::listen('event.*', function ($eventName, array $data) {
-        //     //
-        // });
     }
 }

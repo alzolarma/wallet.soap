@@ -10,21 +10,21 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-use App\Customer;
+use App\PaymentRequest;
 
-class TransactionPending
+class PaymentRequestCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $customer;
+    public $paymentRequest;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Customer $customer)
+    public function __construct(PaymentRequest $paymentRequest)
     {
-        $this->customer = $customer;
+        $this->paymentRequest = $paymentRequest;
     }
 
     /**

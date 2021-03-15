@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SoapController;
+use App\Http\Controllers\PaymentRequestController;
 use Illuminate\Http\Request;
 
 /*
@@ -29,59 +30,8 @@ Route::any('api', function() {
     $server->configureWSDL("WalletTest");
     $server->configureWSDL('api', 'urn:api');
 
-    // Register addComplexType
-    $server->wsdl->addComplexType(
-        'Person',
-        'complexType',
-        'struct',
-        'all',
-        '',
-        array(
-            'firstname' => array('name' => 'firstname', 'type' => 'xsd:string'),
-            'age' => array('name' => 'age', 'type' => 'xsd:int'),
-            'gender' => array('name' => 'gender', 'type' => 'xsd:string')
-        )
-    );
-
-    $server->wsdl->addComplexType(
-        'SweepstakesGreeting',
-        'complexType',
-        'struct',
-        'all',
-        '',
-        array(
-            'greeting' => array('name' => 'greeting', 'type' => 'xsd:string'),
-            'winner' => array('name' => 'winner', 'type' => 'xsd:boolean')
-        )
-    );
-
-    $server->wsdl->addComplexType(
-        'Response',
-        'complexType',
-        'struct',
-        'all',
-        '',
-        array(
-            'status' => array('name' => 'status', 'type' => 'xsd:boolean'),
-            'msg' => array('name' => 'msg', 'type' => 'xsd:string'),
-            'data' => array('name' => 'data', 'type' => 'xsd:string'),
-            'errors' => array('name' => 'errors', 'type' => 'xsd:string')
-        )
-    );
-
     // Register the methods
-    $server->register('hello',                    // method name
-        array('person' => 'tns:Person',),          // input parameters
-        array('return' => 'tns:SweepstakesGreeting'),    // output parameters
-        'urn:api',                         // namespace
-        'urn:api#hello',                   // soapaction
-        'rpc',                                    // style
-        'encoded',                                // use
-        'Greet a person entering the sweepstakes'        // documentation
-    );
-
-    // Register the methods
-    $server->register('GET_BALANCE',                    // method name
+    $server->register('GET_BALANCE',
         array(
             'phone' => 'xsd:string',
             'document' => 'xsd:string',
@@ -93,11 +43,11 @@ Route::any('api', function() {
             'errors' => 'xsd:string',
             'status' => 'xsd:boolean',
         ),
-        'urn:api',                         // namespace
-        'urn:api#hello',                   // soapaction
-        'rpc',                                    // style
-        'encoded',                                // use
-        'Greet a person entering the sweepstakes'        // documentation
+        'urn:api',
+        'urn:api#hello',
+        'rpc',
+        'encoded',
+        'Devuelve el saldo del cliente'
     );
 
     $server->register('STORE_CUSTOMER',
@@ -118,7 +68,7 @@ Route::any('api', function() {
         'urn:api#hello',
         'rpc',
         'encoded',
-        'Crear nuevo usuario'
+        'Crea un nuevo usuario'
     );
 
     $server->register('MAKE_TRANSACTION',
@@ -139,22 +89,46 @@ Route::any('api', function() {
         'urn:api#hello',
         'rpc',
         'encoded',
-        'Crear nuevo usuario'
+        'Realizar una transaccion de credito'
     );
 
-    // Define the method as a PHP function
-    function hello($firstname, $age, $gender) {
-        return array(
-                    'greeting' => $firstname . $age,
-                    'winner' => $gender
-                    );
-        $greeting = 'Hello, ' . $person['firstname'] .
-                    '. It is nice to meet a ' . $person['age'] .
-                    ' year old ' . $person['gender'] . '.';
-        
-        $winner = $person['firstname'] == 'Scott';
+    $server->register('PAYMENT_REQUEST',
+        array(
+            'phone' => 'xsd:string',
+            'document' => 'xsd:string',
+            'mount' => 'xsd:string',
+        ),
+        array(
+            'message' => 'xsd:string',
+            'data' => 'xsd:string',
+            'code' => 'xsd:string',
+            'errors' => 'xsd:string',
+            'status' => 'xsd:boolean',
+        ),
+        'urn:api',
+        'urn:api#hello',
+        'rpc',
+        'encoded',
+        'Realiza una solicitud de pago'
+    );
 
-    }
+     $server->register('CONFIRM_PAYMENT',
+        array(
+            'token' => 'xsd:string',
+        ),
+        array(
+            'message' => 'xsd:string',
+            'data' => 'xsd:string',
+            'code' => 'xsd:string',
+            'errors' => 'xsd:string',
+            'status' => 'xsd:boolean',
+        ),
+        'urn:api',
+        'urn:api#hello',
+        'rpc',
+        'encoded',
+        'Confirma un pago'
+    );
 
     function GET_BALANCE($phone, $document) {
         $request = array('phone'=>$phone,'document'=>$document);
@@ -174,6 +148,20 @@ Route::any('api', function() {
         $request = array('phone'=>$phone,'document'=>$document,'mount'=>$mount,'type'=>$type);
         $soap = new SoapController();
         $response = $soap->transactionStore($request);
+        return $response;
+    }
+
+    function PAYMENT_REQUEST($phone, $document, $mount) {
+        $request = array('phone'=>$phone,'document'=>$document,'mount'=>$mount);
+        $paymentRequestController = new PaymentRequestController();
+        $response = $paymentRequestController->store($request);
+        return $response;
+    }
+
+    function CONFIRM_PAYMENT($token) {
+        $request = array('token'=>$token);
+        $paymentRequestController = new PaymentRequestController();
+        $response = $paymentRequestController->confirm($request);
         return $response;
     }
 

@@ -23,4 +23,13 @@ class Customer extends Model
     {
         return $this->hasOne(Transaction::class)->select('balance');
     }
+
+    /**
+     * Get the paymentRequest associated with the customer.
+     */
+    public function paymentRequests()
+    {
+        return $this->hasMany(PaymentRequest::class, 'customer_id');
+    }
+
 }

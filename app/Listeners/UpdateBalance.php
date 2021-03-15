@@ -34,20 +34,15 @@ class UpdateBalance
 
         $checkWallet = Wallet::where('customer_id', '=', $event->transaction->customer_id)
             ->first();
-    
+
         if($event->transaction->type == 'credit') {
             $checkWallet->balance = $checkWallet->balance + $event->transaction->mount;
         }
         else {
-            if($checkWallet->balance - $event->transaction->mount >= 0) {
+            if( $event->transaction->mount <= $checkWallet->balance) {
                 $checkWallet->balance = $checkWallet->balance - $event->transaction->mount;
             }
-
-            $token = bin2hex(random_bytes((6 - (6 % 2)) / 2));
-
-            Mail::to('alzolarma@gmail.com')->send(new ConfirmTransaction($token));
         }
-
         $checkWallet->save();
 
     }

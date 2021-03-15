@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Soap;
 use App\Customer;
 use App\Transaction;
+use App\PaymentRequest;
 use App\Wallet;
 use Illuminate\Http\Request;
 use App\Events\TransactionCreated;
-use App\Events\TransactionPending;
+use App\Events\PaymentRequestCreated;
 
 class SoapController extends Controller
 {
@@ -120,32 +121,15 @@ class SoapController extends Controller
                     'errors' => null,
                     'data' => null,
                 );
-            } else {
+            }
 
-                $checkWallet = Wallet::where('customer_id', '=', $checkCustomer->id)
-                    ->first();
-
-                if($checkWallet->balance - $request['mount'] < 0) {
-                    return array(
-                        'message' =>  'Saldo insuficiente',
-                        'code' => 202,
-                        'status' => false,
-                        'errors' => null,
-                        'data' => null,
-                    );
-                }
-
-                TransactionPending::dispatch($checkCustomer);
-
-                return array(
-                    'message' =>  'Revise su correo para confirmar la transacción',
+            return array(
+                    'message' =>  'Restringido actualmente solo para creditos',
                     'code' => 200,
                     'status' => true,
                     'errors' => null,
                     'data' => null,
-                );
-
-            }
+            );
 
         } catch (\Throwable $th) {
            return array(
@@ -157,5 +141,7 @@ class SoapController extends Controller
             );
         }
     }
+
+
 
 }
