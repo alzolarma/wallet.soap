@@ -6,6 +6,7 @@ use App\Events\TransactionCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Transaction;
+use App\Wallet;
 
 class UpdateBalance
 {
@@ -27,10 +28,20 @@ class UpdateBalance
      */
     public function handle(TransactionCreated $event)
     {
-        $transaction = new Transaction();
-        $transaction->type = 'credit';
-        $transaction->mount = '900';
-        $transaction->customer_id = '41';
-        $transaction->save();
+
+        $checkWallet = Wallet::where('customer_id', '=', $event->transaction->customer_id)
+            ->first();
+    
+        if($event->transaction->type == 'credit') {
+            $checkWallet->balance = $checkWallet->balance + $event->transaction->mount;
+        }
+        else {
+            if($checkWallet->balance - $event->transaction->mount >= 0) {
+                $checkWallet->balance = $checkWallet->balance - $event->transaction->mount;
+            }
+        }
+
+        $checkWallet->save();
+
     }
 }
