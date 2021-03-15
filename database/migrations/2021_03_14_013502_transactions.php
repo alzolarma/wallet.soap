@@ -18,7 +18,6 @@ class Transactions extends Migration
             $table->string('type');
             $table->string('mount');
             $table->string('customer_id');
-            $table->string('wallet_id');
             $table->timestamps();
         });
     }

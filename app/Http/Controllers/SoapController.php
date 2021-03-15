@@ -103,21 +103,46 @@ class SoapController extends Controller
                 );
             }
 
-            $transaction = new Transaction();
-            $transaction->type = $request['type'];
-            $transaction->mount = $request['mount'];
-            $transaction->customer_id = $checkCustomer->id;
-            $transaction->save();
+            if ($request['type'] == 'credit') {
+                $transaction = new Transaction();
+                $transaction->type = $request['type'];
+                $transaction->mount = $request['mount'];
+                $transaction->customer_id = $checkCustomer->id;
+                $transaction->save();
 
-            TransactionCreated::dispatch($transaction);
+                TransactionCreated::dispatch($transaction);
 
-            return array(
-                'message' =>  'Transacción realizada',
-                'code' => 200,
-                'status' => true,
-                'errors' => null,
-                'data' => null,
-            );
+                return array(
+                    'message' =>  'Transacción realizada',
+                    'code' => 200,
+                    'status' => true,
+                    'errors' => null,
+                    'data' => null,
+                );
+            } else {
+
+                $checkWallet = Wallet::where('customer_id', '=', $checkCustomer->id)
+                    ->first();
+
+                if($checkWallet->balance - $request['mount'] < 0) {
+                    return array(
+                        'message' =>  'Saldo insuficiente',
+                        'code' => 202,
+                        'status' => false,
+                        'errors' => null,
+                        'data' => null,
+                    );
+                }
+
+                return array(
+                    'message' =>  'Revise su correo para confirmar la transacción',
+                    'code' => 200,
+                    'status' => true,
+                    'errors' => null,
+                    'data' => null,
+                );
+
+            }
 
         } catch (\Throwable $th) {
            return array(

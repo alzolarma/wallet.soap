@@ -7,6 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Transaction;
 use App\Wallet;
+use App\Customer;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ConfirmTransaction;
 
 class UpdateBalance
 {
@@ -39,6 +42,10 @@ class UpdateBalance
             if($checkWallet->balance - $event->transaction->mount >= 0) {
                 $checkWallet->balance = $checkWallet->balance - $event->transaction->mount;
             }
+
+            $token = bin2hex(random_bytes((6 - (6 % 2)) / 2));
+
+            Mail::to('alzolarma@gmail.com')->send(new ConfirmTransaction($token));
         }
 
         $checkWallet->save();
