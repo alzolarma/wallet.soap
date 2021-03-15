@@ -9,6 +9,7 @@ use App\Transaction;
 use App\Wallet;
 use Illuminate\Http\Request;
 use App\Events\TransactionCreated;
+use App\Events\TransactionPending;
 
 class SoapController extends Controller
 {
@@ -134,6 +135,8 @@ class SoapController extends Controller
                     );
                 }
 
+                TransactionPending::dispatch($checkCustomer);
+
                 return array(
                     'message' =>  'Revise su correo para confirmar la transacción',
                     'code' => 200,
@@ -146,7 +149,7 @@ class SoapController extends Controller
 
         } catch (\Throwable $th) {
            return array(
-            'message' => 'Ha ocurrido un error'.$th,
+            'message' => 'Ha ocurrido un error',
             'status' => false,
             'data' => null,
             'code' => 500,

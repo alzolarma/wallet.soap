@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Auth\Events\Registered;
 use App\Events\TransactionCreated;
+use App\Events\TransactionPending;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use App\Listeners\UpdateBalance;
+use App\Listeners\SendEmailConfirmation;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -22,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         TransactionCreated::class => [
             UpdateBalance::class,
+        ],
+        TransactionPending::class => [
+            SendEmailConfirmation::class,
         ],
     ];
 

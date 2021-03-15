@@ -30,10 +30,10 @@ class ConfirmTransaction extends Mailable
      */
     public function build()
     {
-        // return $this->from('example@example.com')
-        // ->view('emails.newuser');
+
         return $this->view('email.confirm')->with([
                         'token' => $this->token,
+                        'url' => env('HOST_FRONT', ' http://localhost:3000')."/confirm/".$this->token,
                         ]);
     }
 }

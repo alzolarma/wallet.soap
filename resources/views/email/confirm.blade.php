@@ -75,7 +75,7 @@
                 </p>
 
                 <div class="links">
-                    <a href="https://laravel.com/docs">Confirmar pago {{ $token }}</a>
+                    <a href="{{ $url }}">Confirmar pago.</a>
                 </div>
                 <p>
                 
