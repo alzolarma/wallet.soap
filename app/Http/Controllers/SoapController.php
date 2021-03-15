@@ -5,8 +5,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 use App\Soap;
 use App\Customer;
+use App\Transaction;
 use App\Wallet;
 use Illuminate\Http\Request;
+use App\Events\TransactionCreated;
 
 class SoapController extends Controller
 {
@@ -170,11 +172,48 @@ class SoapController extends Controller
         }
     }
 
-    function createCustomer(){
-        $url = "http://ws.cdyne.com/ip2geo/ip2geo.asmx?wsdl";
-        $client = new \nusoap_client('http://127.0.0.1:8000/index.php?wsdl', true);
-        $result = $client->call('ResolveIP', [ "ipAddress" => '0000', "licenseKey" => "0" ]);
-        return $result;
+    function transactionStore($request) {
+        try {
+
+            $checkCustomer = Customer::where('phone', '=', $request['phone'])
+            ->where('document', '=', $request['document'])
+            ->first();
+
+            if (!$checkCustomer) {
+                return array(
+                    'message' => 'Registro no existe en base de datos',
+                    'status' => false,
+                    'data' => null,
+                    'code' => 202,
+                    'errors' => null
+                );
+            }
+
+            $transaction = new Transaction();
+            $transaction->type = $request['type'];
+            $transaction->mount = $request['mount'];
+            $transaction->customer_id = $checkCustomer->id;
+            $transaction->save();
+
+            TransactionCreated::dispatch($transaction);
+
+            return array(
+                'message' =>  'Transacción realizada',
+                'code' => 200,
+                'status' => true,
+                'errors' => null,
+                'data' => null,
+            );
+
+        } catch (\Throwable $th) {
+           return array(
+            'message' => 'Ha ocurrido un error'.$th,
+            'status' => false,
+            'data' => null,
+            'code' => 500,
+            'errors' => null
+            );
+        }
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Auth\Events\Registered;
+use App\Events\TransactionCreated;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use App\Listeners\UpdateBalance;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -18,6 +20,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        TransactionCreated::class => [
+            UpdateBalance::class,
+        ],
     ];
 
     /**
@@ -29,6 +34,8 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        // Event::listen('event.*', function ($eventName, array $data) {
+        //     //
+        // });
     }
 }

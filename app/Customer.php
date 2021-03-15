@@ -15,4 +15,12 @@ class Customer extends Model
     {
         return $this->hasOne(Wallet::class);
     }
+
+    /**
+     * Get the balance associated with the customer.
+     */
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class);
+    }
 }

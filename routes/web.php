@@ -121,6 +121,27 @@ Route::any('api', function() {
         'Crear nuevo usuario'
     );
 
+    $server->register('MAKE_TRANSACTION',
+        array(
+            'phone' => 'xsd:string',
+            'document' => 'xsd:string',
+            'type' => 'xsd:string',
+            'mount' => 'xsd:string',
+        ),
+        array(
+            'message' => 'xsd:string',
+            'data' => 'xsd:string',
+            'code' => 'xsd:string',
+            'errors' => 'xsd:string',
+            'status' => 'xsd:boolean',
+        ),
+        'urn:api',
+        'urn:api#hello',
+        'rpc',
+        'encoded',
+        'Crear nuevo usuario'
+    );
+
     // Define the method as a PHP function
     function hello($firstname, $age, $gender) {
         return array(
@@ -146,6 +167,13 @@ Route::any('api', function() {
         $request = array('name'=>$name,'phone'=>$phone,'document'=>$document,'email'=>$email);
         $soap = new SoapController();
         $response = $soap->customerStore($request);
+        return $response;
+    }
+
+    function MAKE_TRANSACTION($phone, $document, $type, $mount) {
+        $request = array('phone'=>$phone,'document'=>$document,'mount'=>$mount,'type'=>$type);
+        $soap = new SoapController();
+        $response = $soap->transactionStore($request);
         return $response;
     }
 
