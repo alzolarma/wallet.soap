@@ -17,7 +17,7 @@ class CreatePaymentRequestsTable extends Migration
             $table->id();
             $table->string('customer_id');
             $table->string('mount');
-            $table->string('token');
+            $table->string('token')->nullable();
             $table->timestamps();
         });
     }
